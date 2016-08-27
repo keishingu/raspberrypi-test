@@ -3,12 +3,20 @@ import RPi.GPIO as GPIO
 import smbus
 from time import sleep
 from twython import Twython
+import json
+ 
+# jsonファイルを読み込む
+f = open("twitter_plant_twol.json")
+# jsonデータを読み込んだファイルオブジェクトからPythonデータを作成
+data = json.load(f)
+# ファイルを閉じる
+f.close()
 
 #twitterの認証情報を入力
-CONSUMER_KEY = 'CMJ45Z437x1tWq51FSUN23GH7'
-CONSUMER_SECRET = 'a3IzmLR3TLk9FIz0bmFDt6X762V2BfL42gF9cXj4WmInlL43SO'
-ACCESS_KEY = '618107608-gTamCBnvi9os3OinGu9tIUfpsNpBKG2yUf5Wka9H'
-ACCESS_SECRET = 'UPd9hgHXtqP0TMtEQgLHIGc7OSCcKgW6P72jCaHUZRcHv'
+CONSUMER_KEY    = data["CK"]
+CONSUMER_SECRET = data["CS"]
+ACCESS_KEY      = data["AK"]
+ACCESS_SECRET   = data["AS"]
 api = Twython(CONSUMER_KEY,CONSUMER_SECRET,ACCESS_KEY,ACCESS_SECRET)
 
 # MCP3208からSPI通信で12ビットのデジタル値を取得。0から7の8チャンネル使用可
@@ -76,7 +84,7 @@ try:
 	inputVal0 = readadc(0, SPICLK, SPIMOSI, SPIMISO, SPICS)
 	temp = read_adt7410()
 	print(inputVal0, temp)
-	api.update_status(status= '@k_shingu ただいまの温度は ' + str(temp) + ' 度です。潤い ' + str(inputVal0))
+	api.update_status(status= 'ただいまの温度は ' + str(temp) + ' 度です。潤い ' + str(inputVal0))
 	# 土が乾いていたらLEDを点灯する
 	if inputVal0 < 600:
 		GPIO.output(25, GPIO.HIGH)
